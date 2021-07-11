@@ -1,4 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from .loop import *
 
-from .version import __version__
-__all__ = []
+try:
+    from .version import __version__
+except ImportError:
+    __version__ = "unknown"

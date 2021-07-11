@@ -11,7 +11,7 @@ __all__ = ['semi_circular_loop', 'semi_circular_bundle', 'semi_circular_arcade']
 
 
 @u.quantity_input
-def semi_circular_loop(length: u.cm=None,
+def semi_circular_loop(length: u.cm,
                        s: u.cm=None,
                        observer=None,
                        obstime=None,
@@ -26,8 +26,9 @@ def semi_circular_loop(length: u.cm=None,
     ----------
     length : `~astropy.units.Quantity`
         Total arc length between footpoints
-    s : `~astropy.units.Quantity`
-        Field-aligned coordinate. If specifying `s` directly, do not specify `length`
+    s : `~astropy.units.Quantity`, optional
+        Field-aligned coordinate. If not specified, assumed to be evenly spaced
+        between 0 and `length` with `n_points`.
     observer : `~astropy.coordinates.SkyCoord`, optional
         Observer that defines te HCC coordinate system. Effectively, this is the
         coordinate of the midpoint of the loop.
@@ -36,22 +37,17 @@ def semi_circular_loop(length: u.cm=None,
         of the `observer`.
     n_points : `int`, optional
         Number of points in the coordinate. Only used if `s` is not specified.
-    offset : `~astropy.units.Quantity`
+    offset : `~astropy.units.Quantity`, optional
         Offset in the direction perpendicular to loop, convenient for simulating
         arcade geometries.
-    gamma : `~astropy.units.Quantity`
+    gamma : `~astropy.units.Quantity`, optional
         Orientation of the arcade relative to the HCC y-axis. `gamma=0` corresponds
         to a loop who's axis is oriented parallel to the HCC y-axis.
     """
-    if s is None and length is None:
-        raise ValueError('Must specify field-aligned coordinate or loop length')
     if s is None:
         angles = np.linspace(0, 1, n_points) * np.pi * u.rad
-    elif length is None:
-        length = s[-1]
-        angles = (s / length).decompose() * np.pi * u.rad
     else:
-        raise ValueError('Specify either length or field-aligned coordinate but not both.')
+        angles = (s / length).decompose() * np.pi * u.rad
     z = length / np.pi * np.sin(angles)
     x = -length / np.pi * np.cos(angles)  # add negative sign so that s=0 is the left foot point
     # Define origin in HCC coordinates such that the midpoint of the loop
